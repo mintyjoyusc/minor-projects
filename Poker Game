@@ -1,0 +1,162 @@
+
+#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+// Add all occurences of goal value
+int CheckSingles(vector<int>& diceValues, int goal) {
+   int i; 
+   int score = 0;
+   
+   for(i = 0; i < 5; i++){
+      
+      if(diceValues.at(i) == goal){
+         
+         score += diceValues.at(i);
+      }
+   }
+   
+   return score;
+}
+
+// Check for three of a kind (score = 30)
+int CheckThreeOfKind(vector<int>& diceValues) {
+   int i;
+   
+   for(i = 0; i < 3; i++){
+      
+      if(diceValues.at(i) == diceValues.at(i + 1) && diceValues.at(i) == diceValues.at(i + 2)){
+         
+         return 30;
+      }
+   }
+   return 0;
+
+}
+
+
+// Check for four of a kind (score = 40)
+int CheckFourOfKind(vector<int>& diceValues) {
+   int i;
+   
+   for(i = 0; i < 2; i++){
+      
+      if(diceValues.at(i) == diceValues.at(i + 1) && diceValues.at(i) == diceValues.at(i + 2)
+      && diceValues.at(i) == diceValues.at(i + 3)){
+         
+         return 40;
+      }
+   }
+   return 0;
+}
+
+// Check for five of a kind (score = 50)
+int CheckFiveOfKind(vector<int>& diceValues) {
+   int i;
+   
+   for(i = 0; i < 1; i++){
+      
+      if(diceValues.at(i) == diceValues.at(i + 1) && diceValues.at(i) == diceValues.at(i + 2)
+      && diceValues.at(i) == diceValues.at(i + 3) && diceValues.at(i) == diceValues.at(i + 4)){
+         
+         return 50;
+      }
+   }
+   return 0;
+}
+
+// Check for full house (score = 35)
+int CheckFullHouse(vector<int>& diceValues) {
+   
+   for(int i = 0; i < 2; i++){
+      
+      if((diceValues.at(i) == diceValues.at(i + 1) && diceValues.at(i + 2) == diceValues.at(i + 3)
+      && diceValues.at(i + 2) == diceValues.at(i + 4)) || (diceValues.at(i) == diceValues.at(i + 1) 
+      && diceValues.at(i) == diceValues.at(i + 2) && diceValues.at(i + 3) == diceValues.at(i + 4))){
+         
+         return 35;
+      }
+   }
+   return 0;
+}
+
+// Check for straight (score = 45)
+int CheckStraight(vector<int>& diceValues) {
+   
+   for(int i = 0; i < 1; i++){
+      
+      if((diceValues.at(i + 1) == diceValues.at(i) + 1) && (diceValues.at(i + 2)== diceValues.at(i + 1) + 1)
+      && (diceValues.at(i + 3) == diceValues.at(i + 2) + 1) && (diceValues.at(i + 4) == diceValues.at(i + 3) + 1)){
+         
+         return 45;
+      }
+   }
+   return 0;
+}
+
+// Find high score
+int FindHighScore(vector<int>& diceValues) {
+   int i;
+   int score;
+   int maxScore = 0;
+
+   if(CheckFiveOfKind(diceValues) == 50){
+      
+      maxScore = CheckFiveOfKind(diceValues);
+   }
+   
+   else if(CheckStraight(diceValues) == 45){
+      
+      maxScore = CheckStraight(diceValues);
+   }
+      
+   else if(CheckFourOfKind(diceValues) == 40){
+      
+      maxScore = CheckFourOfKind(diceValues);
+   }
+   
+   else if(CheckFullHouse(diceValues) == 35){
+      
+      maxScore = CheckFullHouse(diceValues);
+   }
+      
+   else if(CheckThreeOfKind(diceValues) == 30){
+      
+      maxScore = CheckThreeOfKind(diceValues);
+   }
+   
+   else{
+      for(i = 0; i < 5; i++){
+         
+      score = CheckSingles(diceValues, i);
+      
+         if(score > maxScore){
+            
+            maxScore = CheckSingles(diceValues, i);
+            
+         }
+      }
+   }
+   return maxScore;
+}
+
+int main() {
+   vector<int> diceValues(5);
+   int highScore = 0;
+
+   // Fill array with five values from input
+   for(int i = 0; i < 5; ++i) {
+      cin >> diceValues.at(i);
+   }
+
+   // Place values in ascending order
+   sort(diceValues.begin(), diceValues.end());
+
+   // Find high score and output
+   highScore = FindHighScore(diceValues);
+   cout << "High score: " << highScore << endl;
+
+   return 0;
+}
+
