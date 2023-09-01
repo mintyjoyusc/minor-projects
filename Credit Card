@@ -1,0 +1,133 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <vector>
+using namespace std;
+
+// Read customer information from external file
+// Make no changes to the following code
+void ReadCustomerData(vector<string>& names, vector<string>& states, vector<double>& debt) {
+   ifstream inFS;
+
+   // Read all data from file into three parallel vectors
+   try {
+      inFS.open("CustomerData.csv");
+
+      for (long unsigned index = 0; index < names.size(); ++index) {
+         inFS >> names.at(index); // last name
+         inFS >> states.at(index); // state of residence
+         inFS >> debt.at(index);   // amount of debt
+      }
+   }
+   // What if data file not found?
+   catch (string err) {
+      cout << "Failed to read the data file: " << err << endl;
+   }
+
+   inFS.close();
+}
+
+int main() {
+   int size;
+   // Input # of customers and create parallel vectors
+   cin >> size ;
+   vector<string> names(size);
+   vector<string> states(size);
+   vector<double> debt(size);
+   
+   int debtLimit;
+   char initial;
+   string state;
+   string name;
+   int i;
+
+   // Fill vectors with data from external file (described in another section)
+   ReadCustomerData(names, states, debt);
+
+   cin >> debtLimit;
+   cin >> initial;
+   cin >> state;
+   
+   int max = 0;
+   int counter = 0;
+   string findName;
+   
+   for(i = 0; i < size; i++){
+      
+      if(debt.at(i) > max){
+         max = debt.at(i);
+         findName = names.at(i);
+      }
+   }
+
+   for(i = 0; i < size; i++){
+      
+      if(names.at(i).front() == initial){
+         counter++;
+      }
+   }
+   
+   int overDebt = 0;
+   int debtFree = 0;
+   
+   for(i = 0; i < size; i++){
+      
+      if(debt.at(i) > debtLimit){
+         overDebt++;
+      }
+      
+      else if(debt.at(i) <= 0){
+         debtFree++;
+      }
+   }
+   
+   int maxState = 0;
+   int counterState = 0;
+   string findNameState;
+   int counterInitial = 0;
+   int overDebtState = 0;
+   int debtFreeState = 0;
+   
+   for(i = 0; i < size; i++){
+      
+      if(states.at(i) == state){
+         counterInitial++;
+      }
+      
+      if((debt.at(i) > maxState) && (states.at(i) == state)){
+         maxState = debt.at(i);
+         findNameState = names.at(i);
+      }
+      
+      if((names.at(i).front() == initial) && (states.at(i) == state)){
+         counterState++;
+      }
+      
+      if((debt.at(i) > debtLimit) && (states.at(i) == state)){
+         overDebtState++;
+      }
+      
+      else if((debt.at(i) <= 0) && (states.at(i) == state)){
+         debtFreeState++;
+      }
+   }
+   
+   
+   cout << "U.S. Report" << endl;
+   cout << "Customers: " << size << endl;
+   cout << "Highest debt: " << findName << endl;
+   cout << "Customer names that start with '" << initial << "': " << counter << endl;
+   cout << "Customers with debt over $" << debtLimit << ": " << overDebt << endl;
+   cout << "Customers debt free: " << debtFree << endl;
+   cout << endl;
+   cout << state << " Report" << endl;
+   cout << "Customers: " << counterInitial << endl;
+   cout << "Highest debt: " << findNameState << endl;
+   cout << "Customer names that start with '" << initial << "': " << counterState << endl;
+   cout << "Customers with debt over $" << debtLimit << ": " << overDebtState << endl;
+   cout << "Customers debt free: " << debtFreeState << endl;
+   
+   // Input debt limit, search phrase, and state
+
+   return 0;
+}
