@@ -1,0 +1,306 @@
+/*******************************************************************************
+ * CS 103 Twenty-One (Blackjack) Project
+/******************************************************************************/
+
+// Add other #includes if you need
+#include <iostream>
+#include <cstdlib>
+
+using namespace std;
+
+/* Prototypes */
+void shuffle(int cards[]);
+void printCard(int id);
+int cardValue(int id);
+void printHand(int hand[], int numCards);
+int getBestScore(int hand[], int numCards);
+
+const int NUM_CARDS = 52;
+
+/**
+ * Global arrays to be used as look-up tables. You 
+ */
+const char suit[4] = {'H','S','D','C'};
+const char* type[13] = 
+  {"2","3","4","5","6","7",
+   "8","9","10","J","Q","K","A"};
+const int value[13] = {2,3,4,5,6,7,8,9,10,10,10,10,11};
+
+/**
+ * Should permute the deck of cards, effectively shuffling it.
+ * You must use the Fisher-Yates / Durstenfeld shuffle algorithm
+ *  described in the assignment writeup.
+ */
+void shuffle(int cards[])
+{
+  /******** You complete ****************/
+  for(int i = 0; i < NUM_CARDS; i++){
+    cards[i] = i;
+  }
+  for (int i = NUM_CARDS - 1; i > 0; i--) {
+      int j = rand() % (i + 1);
+      int temp = cards[i];
+      cards[i] = cards[j];
+      cards[j] = temp;
+    }
+
+}
+
+/**
+ * Prints the card in a "pretty" format:   "type-suit"
+ *  Examples:  K-C  (King of clubs), 2-H (2 of hearts)
+ *  Valid Types are: 2,3,4,5,6,7,8,9,10,J,Q,K,A
+ *  Valid Suits are: H, D, C, S
+ *
+ *  Must use the suit and type arrays to lookup
+ *   the appropriate characters to print.
+ */
+void printCard(int id)
+{
+  /******** You complete ****************/
+  int typeCard = id % 13;
+  int suitCard = id / 13;
+
+  cout << type[typeCard] << "-" << suit[suitCard];
+
+
+}
+
+/**
+ * Returns the numeric value of the card.
+ *  Should return 11 for an ACE and can then
+ *  be adjusted externally based on the sum of the score.
+ *
+ * Must use the values array to lookup the appropriate
+ *  card return value.
+ */
+int cardValue(int id)
+{
+  /******** You complete ****************/
+  int score = (id % 13) + 2;
+  if(score == 14){
+    score = 11;
+    return score;
+  }
+  if(score > 10){
+    score = 10;
+  }
+  
+
+  return score;
+
+}
+
+/**
+ * Should print out each card in the hand separated by a space and
+ * then print a newline at the end.  
+ * Should use printCard() to print out each card.
+ */
+void printHand(int hand[], int numCards)
+{
+  /******** You complete ****************/
+  for(int i = 0; i < numCards; i++){
+    printCard(hand[i]);
+    if(i < numCards - 1){
+        cout << " ";
+    }
+
+  }
+
+  cout << " " << endl;
+
+
+}
+
+/**
+ * Should return the total score of the provided hand.  
+ * ACES should be treated as 11s to make the highest possible hand
+ *  and only being reduced to 1s as needed to avoid busting.
+ */
+int getBestScore(int hand[], int numCards)
+{
+  /******** You complete ****************/
+  int score = 0;
+  int aces = 0;
+
+  for(int i = 0; i < numCards; i++){
+
+    int value = cardValue(hand[i]);
+    score += value;
+    if(value == 11){
+      aces++;
+    }
+  }
+  if(score > 21 && aces > 0){
+      score -= 10;
+      aces--;
+  }
+  return score;
+}
+
+int DgetBestScore(int hand[], int numCards)
+{
+  int score = 0;
+    for(int i = 0; i < numCards; i++){
+    int value = cardValue(hand[i]);
+    if(value==11)
+    {
+      if(11+score>=17 && 11+score<=21)
+      {
+        score+=11;
+      }
+      else
+      {
+        score+=1;
+      }
+    }
+    else
+    {
+      score += value;
+    }
+  }
+  return score;
+}
+
+/**
+ * Main program logic for the game of 21
+ */
+int main(int argc, char* argv[])
+{
+  //---------------------------------------
+  // Do not change this code -- Begin
+  //---------------------------------------
+  if(argc < 2){
+    cout << "Error - Please provide the seed value." << endl;
+    return 1;
+  }
+  int seed = atoi(argv[1]);
+  srand(seed);
+
+  int cards[52];
+  int dhand[9];
+  int phand[9];
+  //---------------------------------------
+  // Do not change this code -- End
+  //---------------------------------------
+
+  /******** You complete ****************/
+
+
+  bool cont = true;
+  char hs;
+  char yn;
+  int pscore;
+  int dscore;
+  int cardNum = 0;
+  bool play = true;
+  
+  while(true){
+    for(int i = 0; i < NUM_CARDS; i++){
+      cards[i] = i;
+    }
+    shuffle(cards);
+    phand[0] = cards[cardNum++];
+    dhand[0] = cards[cardNum++];
+    phand[1] = cards[cardNum++];
+    dhand[1] = cards[cardNum++];
+
+    play = true;
+    bool bust = false;
+    int pSize = 2;
+    int dSize = 2;
+    cout << "Dealer: ? ";
+    printCard(dhand[1]);
+    cout << " " << endl;
+    cout << "Player: ";
+    printHand(phand, pSize);
+
+    while(play){
+
+      if(getBestScore(phand, pSize) == 21){
+
+      play = false;
+      cont = false;
+      break;
+      }
+      cout << "Type 'h' to hit and 's' to stay:" << endl;
+      cin >> hs;
+
+      if(hs == 'h'){
+
+        cout << "Player: ";
+
+        phand[pSize++] = cards[cardNum++];
+        printHand(phand, pSize);
+        pscore = getBestScore(phand, pSize);
+        dscore = getBestScore(dhand, dSize);
+
+        if(pscore > 21){
+
+          cout << "Player busts" << endl;
+          cout << "Lose " << pscore << " " << dscore << endl;
+          cout << endl;
+          cont = false;
+          bust = true;
+          break;
+        }
+      }
+
+      else if(hs == 's'){
+
+        pscore = getBestScore(phand, pSize);
+        dscore = getBestScore(dhand, dSize);
+
+        cont = false;
+        break;
+      }
+
+      else{
+
+        return 0;
+      }
+      
+    }
+    if(!bust && !cont){
+      
+        pscore = getBestScore(phand, pSize);
+        dscore = getBestScore(dhand, dSize);
+
+        while(dscore < 17){
+          dhand[dSize++] = cards[cardNum++];
+          dscore = DgetBestScore(dhand, dSize);
+        }
+        cout << "Dealer: ";
+        printHand(dhand, dSize);
+        if(dscore > 21)
+        {
+          cout<<"Dealer busts"<<endl;
+          cout << "Win " << pscore << " " << dscore << "\n" << endl;
+        }
+        else if(dscore < pscore){
+            cout << "Win " << pscore << " " << dscore << "\n" << endl;
+        }
+        else if(dscore == pscore){
+          cout << "Tie " << pscore << " " << dscore << "\n" << endl;
+        }
+        else{
+            cout << "Lose " << pscore << " " << dscore << "\n"<< endl;
+        }
+        cont = false;
+
+    }
+    if(!cont){
+      cout << "Play again? [y/n]" << endl;
+      cin >> yn;
+      if(yn != 'y'){
+        break;
+      }
+      else{
+        cont = true;
+        cardNum = 0;
+        play = false;
+        }
+      }
+    }
+    return 0;
+  }
