@@ -1,0 +1,481 @@
+#include <iostream>
+#include <cstdlib>
+using namespace std;
+
+/**
+ * Helper function - Given the grid array and its dimension
+ *    as well as a particular row (r) and column (c), this
+ *    function performs the arithmetic to convert r and c
+ *    to a 1D index and returns that character in the grid.
+ */
+
+char getEntryAtRC(char grid[], int dim, int r, int c);
+
+/**
+ * Helper function - Given a 1D index returns the row
+ * that corresponds to this 1D index. 
+ */
+int idxToRow(int idx, int dim);
+
+/**
+ * Helper function - Given a 1D index returns the column
+ * that corresponds to this 1D index. 
+ */
+int idxToCol(int idx, int dim);
+
+
+// Should print the tic-tac-toe board.
+
+void printTTT(char grid[], int dim);
+
+
+//Should check if any player has won the game yet.
+
+int checkForWinner(char grid[], int dim);
+
+
+/**
+ * Should check if there is no possible way any player can win.
+ * More specifically, if there does not exist a row, column,
+ * or diagonal that can still have 3 of a kind, then the game
+ * will be a draw.
+*/
+
+bool checkForDraw(char grid[], int dim);
+
+//Get the Ai Choice for the current player and update grid object
+
+bool getAiChoiceAndUpdateGrid(char grid[], int dim, char player);
+
+//Picks a random location for the current player and update grid
+
+bool getRandChoiceAndUpdateGrid(char grid[], int dim, char player);
+
+//gets input at a certain location
+char getEntryAtRC(char grid[], int dim, int r, int c)
+{
+  int index = r * dim + c;
+  return grid[index];
+}
+
+int idxToRow(int idx, int dim)
+{
+  return idx/dim;
+}
+
+int idxToCol(int idx, int dim)
+{
+  return idx%dim;
+}
+
+void printTTT(char grid[], int dim)
+{ 
+  for (int row = 0; row < dim; row++) {
+
+    cout << " ";
+    for (int col = 0; col < dim; col++) {
+
+      int index = row * dim + col;
+      cout << grid[index];
+      if (col < dim - 1) {
+
+        cout << " | ";
+      }
+    }
+    cout << endl;
+    if (row < dim - 1) {
+
+      for (int i = 0; i < dim; i++) {
+
+        cout << "---";
+      }
+      for (int extraDash = 0; extraDash < dim-1; extraDash++){
+
+        cout << "-";
+      }
+
+      cout << endl;
+    }
+  }
+
+}
+
+int checkForWinner(char grid[], int dim)
+{
+  //Check rows for winning condition
+ int status = 0;  // tells us who wins or if there's no win (0,1,2)
+
+  for(int row = 0; row < dim; row++){ // index through all the rows
+    //count the number of times o and x appear
+
+    int xcount = 0;
+    int ocount = 0;
+
+    for(int j = 0 ; j < dim; j++) {
+
+      char test = getEntryAtRC(grid, dim, row, j);
+      if(test == 'X'){
+
+        xcount++;
+      }
+        
+      if(test == 'O'){
+
+        ocount++;
+      }
+        
+    }
+    if(xcount == dim){
+
+      status = 1; // player x wins
+    }
+      
+    if(ocount == dim){
+
+      status = 2; // player o wins
+    }
+      
+  }
+
+    for(int col = 0; col < dim; col++){ // index through all the columns
+      int xcount = 0;
+      int ocount = 0; 
+      for(int i = 0; i < dim; i++){
+        char test = getEntryAtRC(grid, dim, i, col);
+        if(test == 'X'){
+          xcount++; 
+        }
+            
+        if(test == 'O'){
+          ocount++;
+        }
+            
+      }
+
+        if(xcount == dim){
+
+          status = 1; // x win
+        }
+          
+        if(ocount == dim){
+
+          status = 2; // o win
+        }
+          
+    }
+    
+    int left_x_count = 0;
+    int left_o_count = 0;
+    for(int i=0; i<dim; i++){
+      char test = getEntryAtRC(grid, dim, i, i); // obtain diagonal going left to right
+      if(test == 'X'){
+
+        left_x_count++;
+      }
+          
+      if(test == 'O'){
+
+        left_o_count++;
+      }
+          
+        if(left_x_count == dim){
+
+          status = 1; // x win
+        }
+          
+        if(left_o_count == dim){
+
+          status = 2; // o win
+        }
+          
+      }
+
+    int right_x_count = 0;
+    int right_o_count = 0;
+
+    for(int i=0; i<dim; i++){
+
+      char test = getEntryAtRC(grid, dim, i, dim-1-i); // obtain diagonal going right to left
+      if(test == 'X'){
+
+        right_x_count++;
+      }
+      if(test == 'O'){
+
+        right_o_count++;
+      }
+          
+      if(right_x_count == dim){
+
+        status = 1; // x win 
+      }
+        
+      else if(right_o_count == dim){
+
+        status = 2; // o win 
+      }
+          
+    }
+    
+  return status;
+}
+
+bool checkForDraw(char grid[], int dim)
+{
+  int rows[dim]; // if rows[i] == 1 then row i contains x and o
+  int cols[dim]; // if cols[i] == 1 then col i contains x and o
+  int x_count = 0;
+  int o_count = 0;
+  for(int i = 0; i < dim; i++){ // check for each row having x or o
+  
+    x_count = 0;
+    o_count = 0;
+    for(int j = 0 ; j < dim; j++) {
+      
+      char test = getEntryAtRC(grid, dim, i, j);
+      if(test == 'X'){
+
+        x_count++;
+      }
+        
+      if(test == 'O'){
+
+        o_count++;
+      }
+        
+    }
+    if(x_count >= 1 && o_count >= 1){
+      rows[i]=1;
+    }
+      
+  }
+
+  for(int j = 0; j < dim; j++){ // checks each col having 1 or 0 
+  
+    x_count = 0;
+    o_count = 0; 
+
+    for(int i = 0; i < dim; i++){
+
+      char test = getEntryAtRC(grid, dim, i, j);
+      if(test == 'X'){
+
+        x_count++;
+      }
+        
+      if(test == 'O'){
+
+        o_count++;
+      }
+        
+    }
+    if(x_count >= 1 && o_count >= 1){
+
+      cols[j]=1;
+    }
+      
+  }
+
+  //if the rows and. columns don't have both x and o, return false
+    for(int i=0; i<dim; i++){ 
+      if(!(rows[i]==1 && cols[i]==1)) 
+        return false;    
+    }
+  return true; // return true if every row and col has x and o
+}
+
+bool getAiChoiceAndUpdateGrid(char grid[], int dim, char player)
+{
+  // try to win if possible
+  for (int i = 0; i < dim; i++) {
+
+    for (int j = 0; j < dim; j++) {
+
+      int index = i * dim + j;
+
+      if (grid[index] == '?') {
+
+        // try making a move and check if it results in a win
+        grid[index] = player;
+
+        if (checkForWinner(grid, dim)) {
+
+          return false; // winning move made
+        }
+        // undo the move
+        grid[index] = '?';
+      }
+    }
+  }
+
+    // check if the opponent can win on their next move and block them
+  char opponent = (player == 'X') ? 'O' : 'X';
+  for (int i = 0; i < dim; i++) {
+    for (int j = 0; j < dim; j++) {
+      int index = i * dim + j;
+      if (grid[index] == '?') {
+
+        // try making a move and check if it blocks the opponent
+        grid[index] = opponent;
+        if (checkForWinner(grid, dim)) {
+
+          // block the opponent's winning move
+          grid[index] = player;
+          return false;
+        }
+
+        // undo the move
+        grid[index] = '?';
+      }
+    }
+  }
+
+    // if no winning move or blocking move is available, choose a random empty spot
+  for (int i = 0; i < dim; i++) {
+
+    for (int j = 0; j < dim; j++) {
+
+      int index = i * dim + j;
+      if (grid[index] == '?') {
+
+        grid[index] = player;
+        return false; // a move is made
+      }
+    }
+  }
+
+    return true; 
+}
+
+
+// Complete...Do not alter
+bool getRandChoiceAndUpdateGrid(char grid[], int dim, char player)
+{
+    int start = rand()%(dim*dim);
+    // look for an open location to play based on random starting location.
+    // If that location is occupied, move on sequentially until wrapping and
+    // trying all locations
+    for(int i=0; i < dim*dim; i++) {
+        int loc = (start + i) % (dim*dim);
+        if(grid[ loc ] == '?') {
+            grid[ loc ] = player;
+            return false;
+        }
+    }
+    // No viable location
+    return true;
+}
+
+
+/**********************************************************
+ *  Complete the indicated parts of main(), below.
+ **********************************************************/
+int main()
+{
+    // This array holds the actual board/grid of X and Os. It is sized
+    // for the biggest possible case (11x11), but you should only
+    // use dim^2 entries (i.e. if dim=3, only use 9 entries: 0 to 8)
+    char tttdata[121];
+
+    // dim stands for dimension and is the side length of the
+    // tic-tac-toe board i.e. dim x dim (3x3 or 5x5).
+    int dim;
+    int seed;
+    // Get the dimension from the user
+    cin >> dim >> seed;
+    srand(seed);
+
+    int dim_sq = dim*dim;
+
+    for(int i=0; i < dim_sq; i++) {
+        tttdata[i] = '?';
+    }
+
+    // Print one of these messages when the game is over
+    // and before you quit
+    const char xwins_msg[] = "X player wins!";
+    const char owins_msg[] = "O player wins!";
+    const char draw_msg[] =  "Draw...game over!";
+
+    bool done = false;
+    char player = 'X';
+    // Show the initial starting board
+    printTTT(tttdata, dim);
+
+
+    while(!done) {
+        int choice;
+        cin >> choice;
+
+        //check for bounds
+        if(choice < -2 || choice >= dim_sq){
+
+          cout << "Invalid input" << endl;
+          break;
+        }
+
+        if(choice == -1){
+
+          getAiChoiceAndUpdateGrid(tttdata, dim, player);
+        }
+
+        else if(choice == -2){
+
+          getRandChoiceAndUpdateGrid(tttdata, dim, player);
+        }
+
+        else if(choice >= 0 && choice < dim_sq){
+
+          tttdata[choice] = player;
+        }
+
+        else{
+
+          break;
+        }
+        
+        int win = checkForWinner(tttdata, dim);
+        bool draw = checkForDraw(tttdata, dim);
+
+        //check to see if there is a winner: x
+        if(win == 1){
+
+          printTTT(tttdata, dim);
+          cout << xwins_msg << endl;
+          done = true;
+        }
+
+        //check to see if player o has won
+        else if(win == 2){
+
+          printTTT(tttdata, dim);
+          cout << owins_msg << endl;
+          done = true;
+        }
+
+        //check for draw
+        if(draw == true){
+
+          printTTT(tttdata, dim);
+          cout << draw_msg << endl;
+          done = true;
+        }
+
+        //if the game is not won or drawn, it is the opponent's turn
+        if (!done && draw == false){
+
+          printTTT(tttdata, dim);
+          if(player == 'X'){
+
+            player = 'O';
+          }
+
+          else if(player == 'O'){
+
+            player = 'X';
+          }
+        }
+
+    } 
+    return 0;
+}
